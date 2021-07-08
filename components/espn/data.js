@@ -40,7 +40,7 @@ function getPlayers(html, domAthletesQuery, domAthletesHeadQuery, domDataHeadQue
     let domHeadDataElements = dom(domDataHeadQuery);
     let players = [];
     let playerHeaders = [];
-    let playerData = {};
+    let playerData = [];
     let dataHeaders = [];
 
     // Get the headers from the first part of the table
@@ -48,7 +48,6 @@ function getPlayers(html, domAthletesQuery, domAthletesHeadQuery, domDataHeadQue
         for(let j = 0; j < domAthleteHeadElements.length; j++) {
             playerHeaders.push(domAthleteHeadElements.eq(j).text());
         }
-        console.log(playerHeaders);
     }
 
     // set the headers from the table
@@ -56,31 +55,36 @@ function getPlayers(html, domAthletesQuery, domAthletesHeadQuery, domDataHeadQue
         for(let j = 0; j < domHeadDataElements.length; j++) {
             dataHeaders.push(domHeadDataElements.eq(j).text());
         }
-        console.log(dataHeaders);
     }
 
     // loop through all the athletes
     for(let i = 0; i < domAthleteElements.length; i++) {
-        let player = {};
-        playerData = {};
+        playerData = [];
         let elements = domDataElements.eq(i);
 
         // get data elements from first part of the table (rank, name)
         for(let j = 0; j < domAthleteElements.eq(i).find('td').length; j++) {
-            console.log(domAthleteElements.eq(i).find('td').eq(j).text());
-            playerData[playerHeaders[j]] = domAthleteElements.eq(i).find('td').eq(j).text();
+            // playerData[playerHeaders[j]] = domAthleteElements.eq(i).find('td').eq(j).text();
+            if(domAthleteElements.eq(i).find('td').eq(j).find('div a').length == 0) {
+                playerData.push(domAthleteElements.eq(i).find('td').eq(j).text());
+            } else {
+                playerData.push(domAthleteElements.eq(i).find('td').eq(j).find('div a').text()); // handle getting names and not the team name
+            }
+            
         }
 
+        // get data elements form the rest of the table
         if(domDataSubQuery != '') {
             for(let j = 0; j < elements.find(domDataSubQuery).length; j++) {
-                playerData[dataHeaders[j]] = elements.find(domDataSubQuery).eq(j).text()
+                // playerData[dataHeaders[j]] = elements.find(domDataSubQuery).eq(j).text();
+                playerData.push(elements.find(domDataSubQuery).eq(j).text());
             }
         }
 
-        players.push(playerData);
+        players.push({data: playerData});
     }
 
-    return players;
+    return {headers: playerHeaders, data: players};
 }
 
 module.exports = {
